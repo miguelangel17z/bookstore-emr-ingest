@@ -119,6 +119,11 @@ def build_entity_spark_step(entity_name: str, run_id: str) -> List[Dict[str, Any
             "HadoopJarStep": {
                 "Jar": "command-runner.jar",
                 "Args": [
+                    "env",
+                    f"RDS_USER={RDS_USER}",
+                    f"RDS_PASSWORD={RDS_PASSWORD}",
+                    f"AWS_DEFAULT_REGION={AWS_REGION}",
+                    f"AWS_REGION={AWS_REGION}",
                     "spark-submit",
                     "--deploy-mode",
                     "client",

@@ -102,7 +102,12 @@ def _read_yaml_dict(config_path: str, s3_client: Any = None) -> Dict[str, Any]:
         else:
             import boto3
 
-            client = boto3.client("s3")
+            region = (
+                os.environ.get("AWS_REGION")
+                or os.environ.get("AWS_DEFAULT_REGION")
+                or "us-east-1"
+            )
+            client = boto3.client("s3", region_name=region)
         response = client.get_object(Bucket=bucket, Key=key)
         raw_content = response["Body"].read().decode("utf-8")
         data = yaml.safe_load(raw_content)
@@ -133,6 +138,11 @@ def load_config(
     raw = _read_yaml_dict(config_path, s3_client=s3_client)
 
     load_dotenv(dotenv_path=env_file)
+    if env_file is None and (not os.environ.get("RDS_USER") or not os.environ.get("RDS_PASSWORD")):
+        for fallback_env in ("/etc/bookstore/.env", "/etc/environment"):
+            if os.path.isfile(fallback_env):
+                load_dotenv(dotenv_path=fallback_env)
+
     db_user = os.environ.get("RDS_USER", "").strip()
     db_password = os.environ.get("RDS_PASSWORD", "")
     if not db_user:
@@ -253,7 +263,12 @@ def run_job(
     if ssm_client is None:
         import boto3
 
-        ssm_client = boto3.client("ssm")
+        region = (
+            os.environ.get("AWS_REGION")
+            or os.environ.get("AWS_DEFAULT_REGION")
+            or "us-east-1"
+        )
+        ssm_client = boto3.client("ssm", region_name=region)
     watermark_store = SsmWatermarkStore(
         ssm_client,
         config.ssm_watermark_prefix,
