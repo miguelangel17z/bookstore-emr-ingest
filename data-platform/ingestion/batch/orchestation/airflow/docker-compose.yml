@@ -1,0 +1,20 @@
+services:
+  airflow:
+    image: apache/airflow:2.10.2-python3.11
+    container_name: bookstore-airflow
+    restart: unless-stopped
+    command: standalone
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - airflow_data:/opt/airflow
+
+volumes:
+  airflow_data:

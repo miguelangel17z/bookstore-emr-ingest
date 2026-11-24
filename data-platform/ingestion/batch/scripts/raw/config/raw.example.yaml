@@ -1,0 +1,14 @@
+# Configuración estable del entorno para el adaptador EMR de ingesta Raw
+# Nota: NO incluir secretos aquí. Las credenciales RDS_USER y RDS_PASSWORD
+# se leen desde variables de entorno o archivo .env.
+
+rds:
+  host: replace-with-rds-endpoint.us-east-1.rds.amazonaws.com
+  port: 5432
+  database: bookstore
+
+source_schema: public
+source_system: bookstore_oltp
+s3_target_path: s3://replace-with-raw-bucket/raw
+ssm_watermark_prefix: /bookstore/raw/watermark
+initial_watermark: "1970-01-01T00:00:00Z"
