@@ -179,7 +179,6 @@ with DAG(
         task_id="terminate_emr_cluster",
         job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
         aws_conn_id=AWS_CONN_ID,
-        region_name=AWS_REGION,
         trigger_rule=TriggerRule.ALL_DONE,
     )
 
@@ -188,7 +187,6 @@ with DAG(
             task_id=f"add_step_{entity}",
             job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
             aws_conn_id=AWS_CONN_ID,
-            region_name=AWS_REGION,
             steps=build_entity_spark_step(entity, RUN_ID_TEMPLATE),
         )
 
@@ -197,7 +195,6 @@ with DAG(
             job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
             step_id=f"{{{{ task_instance.xcom_pull(task_ids='add_step_{entity}', key='return_value')[0] }}}}",
             aws_conn_id=AWS_CONN_ID,
-            region_name=AWS_REGION,
             poke_interval=30,
             timeout=3600,
         )
